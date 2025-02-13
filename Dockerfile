@@ -17,7 +17,7 @@ RUN go build -o http
 # Create a lightweight image with the compiled binary
 FROM alpine:3.20
 WORKDIR /app
-ENV PORT 8000
+ENV PORT=8000
 EXPOSE 8000
 COPY --from=binary /app/http /app
 CMD ["/app/http"]
