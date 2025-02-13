@@ -4,6 +4,7 @@ import (
     "database/sql"
     "encoding/json"
     "fmt"
+    "io/ioutil"
     "log"
     "net/http"
     "os"
@@ -38,7 +39,7 @@ func initDB() {
 func main() {
     port := os.Getenv("PORT")
     if port == "" {
-        port = "8080"
+        port = "8000"
     }
 
     initDB()
@@ -50,10 +51,12 @@ func main() {
         case http.MethodGet:
             queryParams := r.URL.Query()
             if len(queryParams) == 0 {
+                // If no query parameters, return 200 OK with an empty JSON object
                 w.Header().Set("Content-Type", "application/json")
                 w.WriteHeader(http.StatusOK)
                 w.Write([]byte("{}"))
             } else {
+                // Return the query parameters as a JSON response
                 response := make(map[string]interface{})
                 for key, values := range queryParams {
                     if len(values) > 1 {
@@ -67,8 +70,9 @@ func main() {
                 w.WriteHeader(http.StatusOK)
                 w.Write(jsonResponse)
             }
+
         case http.MethodPost:
-            body, err := io.ReadAll(r.Body)
+            body, err := ioutil.ReadAll(r.Body)
             if err != nil {
                 http.Error(w, "Cannot read body", http.StatusBadRequest)
                 return
@@ -76,7 +80,9 @@ func main() {
             w.Header().Set("Content-Type", "application/json")
             w.WriteHeader(http.StatusOK)
             w.Write(body)
+
         default:
+            // For other methods, return 404
             http.NotFound(w, r)
         }
     })
@@ -93,6 +99,7 @@ func main() {
             w.WriteHeader(http.StatusOK)
             w.Write([]byte("OK"))
         } else {
+            // For other methods, return 404
             http.NotFound(w, r)
         }
     })
